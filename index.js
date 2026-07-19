@@ -50,8 +50,47 @@ app.post('/tasks', (req, res) => {
     };
 
     tasks.push(newTask);
-    
+
     res.status(201).json(newTask);
+});
+
+app.put('/tasks/:id', (req, res) => {
+  const taskId = parseInt(req.params.id);
+  const task = tasks.find(t => t.id === taskId);
+  
+  if (!task) {
+    return res.status(404).json({ "error": `Task ${taskId} not found` });
+  }
+  
+  const { title, done } = req.body;
+  
+
+  if (Object.keys(req.body).length === 0) {
+    return res.status(400).json({ "error": "Request body cannot be empty" });
+  }
+  if (title !== undefined && title.trim() === '') {
+    return res.status(400).json({ "error": "Title cannot be empty" });
+  }
+  
+  if (title !== undefined) task.title = title;
+  if (done !== undefined) task.done = done;
+  
+  res.json(task);
+});
+
+
+app.delete('/tasks/:id', (req, res) => {
+  const taskId = parseInt(req.params.id);
+  
+  const taskIndex = tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    return res.status(404).json({ "error": `Task ${taskId} not found` });
+  }
+  
+  tasks.splice(taskIndex, 1);
+
+  res.status(204).send();
 });
 
 app.listen(port, () => {
