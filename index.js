@@ -96,6 +96,21 @@ app.delete('/tasks/:id', (req, res) => {
   res.status(204).send();
 });
 
+
+app.get('/stats', (req, res) => {
+  const total = tasks.length;
+  
+  const done = tasks.filter(task => task.done === true).length;
+  
+  const open = total - done;
+
+  res.json({
+    "total": total,
+    "done": done,
+    "open": open
+  });
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
