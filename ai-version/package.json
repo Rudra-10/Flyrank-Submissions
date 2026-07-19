@@ -1,0 +1,13 @@
+{
+  "name": "w2-crud-api-ai-version",
+  "version": "1.0.0",
+  "description": "Task CRUD API - AI Version",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
