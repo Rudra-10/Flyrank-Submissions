@@ -38,19 +38,23 @@ app.get('/health',(req,res)=>{
 });
 
 app.get ('/tasks', (req,res) =>{
-    res.json(tasks);
+    const allTasks = db.prepare('SELECT * FROM tasks').all();
+    res.status(200).json(allTasks);
 });
 
 app.get('/tasks/:id', (req, res) => {
-  const taskId = parseInt(req.params.id);
-
-  const task = tasks.find(t => t.id === taskId);
-
-  if (!task) {
-    return res.status(404).json({ "error": `Task ${taskId} not found` });
+  const taskId = parseInt(req.params.id, 10);
+  if (isNaN(taskId)) {
+      return res.status(400).json({ error: "Task ID must be a valid integer" });
   }
 
-  res.json(task);
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
+  }
+
+  res.status(200).json(task);
 });
 
 app.post('/tasks', (req, res) => {
