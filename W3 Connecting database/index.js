@@ -74,58 +74,57 @@ app.post('/tasks', (req, res) => {
     });
 });
 
+
 app.put('/tasks/:id', (req, res) => {
-  const taskId = parseInt(req.params.id);
-  const task = tasks.find(t => t.id === taskId);
-  
+  const taskId = parseInt(req.params.id, 10);
+  if (isNaN(taskId)) return res.status(400).json({ error: "Invalid ID format" });
+
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
   if (!task) {
-    return res.status(404).json({ "error": `Task ${taskId} not found` });
+    return res.status(404).json({ error: "Task not found" });
   }
   
   const { title, done } = req.body;
-  
-
   if (Object.keys(req.body).length === 0) {
-    return res.status(400).json({ "error": "Request body cannot be empty" });
+    return res.status(400).json({ error: "Request body cannot be empty" });
   }
   if (title !== undefined && title.trim() === '') {
-    return res.status(400).json({ "error": "Title cannot be empty" });
+    return res.status(400).json({ error: "Title cannot be empty" });
   }
+
+  const newTitle = title !== undefined ? title.trim() : task.title;
+  let newDone = task.done;
+  if (done !== undefined) {
+      newDone = done ? 1 : 0; // Convert boolean to SQLite integer (0 or 1)
+  }
+
+  db.prepare('UPDATE tasks SET title = ?, done = ? WHERE id = ?').run(newTitle, newDone, taskId);
   
-  if (title !== undefined) task.title = title;
-  if (done !== undefined) task.done = done;
-  
-  res.json(task);
+  res.status(200).json({ id: taskId, title: newTitle, done: newDone });
 });
 
 
 app.delete('/tasks/:id', (req, res) => {
-  const taskId = parseInt(req.params.id);
-  
-  const taskIndex = tasks.findIndex(t => t.id === taskId);
-  
-  if (taskIndex === -1) {
-    return res.status(404).json({ "error": `Task ${taskId} not found` });
+  const taskId = parseInt(req.params.id, 10);
+  if (isNaN(taskId)) return res.status(400).json({ error: "Invalid ID format" });
+
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
   }
   
-  tasks.splice(taskIndex, 1);
-
+  db.prepare('DELETE FROM tasks WHERE id = ?').run(taskId);
   res.status(204).send();
 });
 
 
 app.get('/stats', (req, res) => {
-  const total = tasks.length;
-  
-  const done = tasks.filter(task => task.done === true).length;
-  
+  const total = db.prepare('SELECT COUNT(*) as count FROM tasks').get().count;
+  const done = db.prepare('SELECT COUNT(*) as count FROM tasks WHERE done = 1').get().count;
   const open = total - done;
 
-  res.json({
-    "total": total,
-    "done": done,
-    "open": open
-  });
+  res.json({ total, done, open });
+
 });
 
 app.listen(port, () => {
