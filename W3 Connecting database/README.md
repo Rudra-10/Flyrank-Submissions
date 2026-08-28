@@ -36,7 +36,7 @@ Below is a screenshot of the tasks.db file opened in DB Browser, displaying the 
 
 ## AI vs Me
 
-## 🤖 Stage 6: The AI Rematch
+## Stage 6: The AI Rematch
 
 **The Prompt I Used:**
 > "Act as a senior Node.js backend engineer. Migrate an existing in-memory Express.js CRUD API for a task list to a persistent SQLite database using the better-sqlite3 library. 
