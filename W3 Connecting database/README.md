@@ -32,3 +32,18 @@ Result: This query returned the total integer count of all rows currently existi
 Below is a screenshot of the tasks.db file opened in DB Browser, displaying the table structure and current rows:
 
 ![DB Browser Screenshot](./screenshot.png)
+
+
+## AI vs Me
+
+## 🤖 Stage 6: The AI Rematch
+
+**The Prompt I Used:**
+> "Act as a senior Node.js backend engineer. Migrate an existing in-memory Express.js CRUD API for a task list to a persistent SQLite database using the better-sqlite3 library. 
+> Strict Specifications: Auto-create a tasks.db file and a tasks table if missing. Check the row count on startup and seed 3 tasks only if empty. Implement GET, POST, PUT, and DELETE endpoints. Strictly use parameterized queries (?) for all variables. Return a 404 HTTP status for unknown IDs, and a 400 status for invalid titles."
+
+**Code Review:**
+After running `git diff --no-index index.js ai-version/index.js`, I found three key differences:
+1. **Missing Documentation:** The AI completely removed my Swagger/OpenAPI setup (`swagger-ui-express`). Because I forgot to specify it in my prompt, the AI stripped it out entirely.
+2. **Path Resolution:** The AI used Node's built-in `path` module (`path.join(__dirname, 'tasks.db')`) to create an absolute path for the database file.
+3. **Environment Variables:** The AI implemented `const PORT = process.env.PORT || 3000;`, whereas I had hardcoded the port to `3000`.
