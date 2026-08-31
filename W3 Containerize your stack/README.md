@@ -1,73 +1,46 @@
-# W3 Assignment: Containerize Your Stack (Task API)
+# Containerized Task API
 
-A Task CRUD API backed by a PostgreSQL database running in a Docker container.
+**What this is:** A RESTful API for managing tasks, built with Node.js, Express, and PostgreSQL. The entire application and database are containerized using Docker Compose, including automatic database initialization and seeding.
 
----
+## How to Run
+Clone the repository, set up your environment variables, and start the stack with one command:
 
-## Stage 0: A Real Database in One Command
+1. `cp .env.example .env`
+2. `docker compose up`
 
-### 1. Start Postgres in Docker with persistent volume
-Run the official PostgreSQL container in the background with persistent volume `taskdata`:
+## Environment Variables
+Check the `.env.example` file for the required variables. 
+* `DATABASE_URL` (points to the internal Docker db service)
+* `PORT` (default is 3000)
 
-```bash
-docker run --name taskdb -e POSTGRES_PASSWORD=dev -e POSTGRES_DB=tasks -p 5432:5432 -v taskdata:/var/lib/postgresql/data -d postgres
-```
+## Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/`      | API root and metadata |
+| GET    | `/health`| Server health check |
+| GET    | `/docs`  | Swagger OpenAPI Documentation |
+| GET    | `/tasks` | Retrieve all tasks |
+| GET    | `/tasks/:id` | Retrieve a single task |
+| POST   | `/tasks` | Create a new task |
+| PUT    | `/tasks/:id` | Update an existing task |
+| DELETE | `/tasks/:id` | Delete a task |
 
-### 2. Verify Database Container
-Check that the container is running:
-```bash
-docker ps
-```
+## Example Request
+`curl -i http://localhost:3000/tasks`
 
-Open a `psql` interactive prompt inside the container:
-```bash
-docker exec -it taskdb psql -U postgres -d tasks
-```
-Inside psql, check tables and exit:
-```sql
-\dt
-\q
-```
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Content-Type: application/json; charset=utf-8
+Content-Length: 180
+Date: Mon, 31 Aug 2026 12:00:00 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
 
-### Stage 0 Git Commit
-```bash
-git add .gitignore README.md
-git commit -m "Stage 0: Postgres in Docker + gitignore"
-```
+[
+  {"id":1,"title":"Learn Docker & Postgres","done":true},
+  {"id":2,"title":"Connect Task API to containerized database","done":true},
+  {"id":3,"title":"Complete all CRUD operations and deploy","done":false}
+]
 
----
-
-## Stage 1: Connect Your App (Secret, Driver, Table)
-
-### 1. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-`.env` contents:
-```env
-DATABASE_URL=postgres://postgres:dev@localhost:5432/tasks
-PORT=3000
-```
-
-### 2. Install Dependencies & Start App
-```bash
-npm install
-npm start
-```
-
-### 3. Verification & Checkpoints
-- **Startup Connection**: The server connects to PostgreSQL via `DATABASE_URL` with no error.
-- **Auto Table Creation & Seeding**: The `tasks` table is automatically created (`id SERIAL PRIMARY KEY, title TEXT, done BOOLEAN`) and seeded with 3 initial tasks only if empty.
-- **Check via psql**:
-  ```bash
-  docker exec -it taskdb psql -U postgres -d tasks -c "\dt"
-  docker exec -it taskdb psql -U postgres -d tasks -c "SELECT * FROM tasks;"
-  ```
-- **Restarting verification**: Restart the app multiple times (`npm start`); verify that the row count remains exactly 3.
-
-### Stage 1 Git Commit
-```bash
-git add .
-git commit -m "Stage 1: connect via .env and create table"
-```
+## Database Proof
+![Database Verification](./screenshot.png)
