@@ -1,21 +1,14 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// We use explicit credentials to bypass that local password error you were getting.
-// When you move to Docker Compose (Stage 4), you can delete these explicit fields 
-// and just use: connectionString: process.env.DATABASE_URL
 const pool = new Pool({
-  user: 'postgres',
-  password: 'dev',
-  host: 'localhost',
-  database: 'tasks',
-  port: 5433
+  connectionString: process.env.DATABASE_URL
 });
 
 async function initDB() {
   const client = await pool.connect();
   try {
-    // 1. Create tasks table if it does not exist
+    
     await client.query(`
       CREATE TABLE IF NOT EXISTS tasks (
         id SERIAL PRIMARY KEY,
@@ -24,11 +17,11 @@ async function initDB() {
       );
     `);
 
-    // 2. Check if table is empty
+    
     const res = await client.query('SELECT COUNT(*) FROM tasks;');
     const count = parseInt(res.rows[0].count, 10);
 
-    // 3. Seed initial tasks only on first run if table is empty
+    
     if (count === 0) {
       console.log('Seeding initial example tasks...');
       const seedTasks = [
@@ -55,7 +48,7 @@ async function initDB() {
   }
 }
 
-// Database helper function for queries
+
 async function query(text, params) {
   return pool.query(text, params);
 }
