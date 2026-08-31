@@ -1,7 +1,15 @@
 {
+  "name": "w3-containerize-your-stack",
+  "version": "1.0.0",
+  "description": "Task API backed by PostgreSQL in Docker",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
     "pg": "^8.23.0",
     "swagger-ui-express": "^5.0.1"
   }
